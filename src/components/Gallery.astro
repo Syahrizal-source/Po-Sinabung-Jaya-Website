@@ -1,0 +1,64 @@
+---
+import { gallery } from '../data/gallery';
+---
+
+<section x-data="{
+    open: false,
+    activeImage: '',
+    activeTitle: ''
+  }" class="space-y-10">
+  <div>
+    <p class="text-sm font-semibold tracking-[0.3em] text-red-600 uppercase">Armada</p>
+
+    <h2 class="mt-2 text-4xl font-bold text-gray-900">Gallery Bus</h2>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      gallery.map((item) => (
+        <div
+          class="group cursor-pointer overflow-hidden rounded-3xl bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-2xl"
+          data-image={item.image}
+          data-title={item.title}
+          x-on:click="
+            open = true;
+            activeImage = $el.dataset.image;
+            activeTitle = $el.dataset.title;
+          "
+        >
+          <img src={item.image} alt={item.title} class="h-72 w-full object-cover" loading="lazy" />
+
+          <div class="p-5">
+            <h3 class="text-lg font-bold text-gray-900">{item.title}</h3>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- MODAL -->
+  <div
+    x-show="open"
+    x-transition.opacity
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+    @click="open = false"
+    style="display: none;"
+  >
+    <div class="relative max-w-5xl" x-transition.scale @click.stop>
+      <button @click="open = false" class="absolute -top-14 right-0 text-5xl text-white">
+        ×
+      </button>
+
+      <img
+        :src="activeImage"
+        :alt="activeTitle"
+        class="max-h-[85vh] w-auto rounded-3xl object-contain shadow-2xl"
+      />
+
+      <p class="mt-4 text-center text-xl font-semibold text-white">
+        <span x-text="activeTitle"></span>
+      </p>
+    </div>
+  </div>
+</section>

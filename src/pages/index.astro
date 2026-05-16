@@ -1,11 +1,180 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import MainLayout from '../layouts/MainLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import FAQ from '../components/FAQ.astro';
+import Gallery from '../components/Gallery.astro';
+import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
+import Footer from '../components/Footer.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { routes } from '../data/route';
+import { agents } from '../data/agents';
+
+import { passengerFares } from '../data/passenger-fares';
+import { packageFares } from '../data/package-fares';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<MainLayout>
+  <Navbar />
+  <Hero />
+
+  <section class="mx-auto max-w-7xl space-y-24 px-6 py-24">
+    <!-- Jadwal -->
+    <div id="jadwal" class="reveal">
+      <h2 class="mb-8 text-4xl font-bold text-gray-900">Jadwal Keberangkatan</h2>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        {
+          routes.departures.map((departure) => (
+            <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+              <p class="text-xl font-bold text-gray-900">{departure.from}</p>
+
+              <p class="mt-3 text-gray-600">
+                Keberangkatan:
+                <span class="font-semibold text-red-600">{departure.time} WIB</span>
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Agen -->
+    <div id="agen" class="reveal">
+      <h2 class="mb-8 text-4xl font-bold text-gray-900">Agen</h2>
+
+      <div class="grid gap-6 md:grid-cols-2">
+        {
+          agents.map((agent) => (
+            <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+              <h3 class="text-2xl font-bold text-gray-900">{agent.city}</h3>
+
+              <p class="mt-3 text-gray-700">{agent.name}</p>
+
+              {agent.address && <p class="mt-2 text-gray-500">{agent.address}</p>}
+
+              <a
+                href={`https://wa.me/${agent.phone.replace(/\D/g, '')}`}
+                target="_blank"
+                class="mt-4 inline-block font-semibold text-red-600 hover:underline"
+              >
+                {agent.phone}
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Tarif Penumpang -->
+    <div id="tarif" x-data="{
+        search: ''
+      }" class="reveal">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <h2 class="text-4xl font-bold text-gray-900">Tarif Penumpang</h2>
+
+        <input
+          x-model="search"
+          type="text"
+          placeholder="Cari tujuan..."
+          class="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition outline-none focus:border-red-500 md:max-w-sm"
+        />
+      </div>
+
+      <div class="mt-8 overflow-hidden rounded-3xl bg-white shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[700px]">
+            <thead>
+              <tr class="bg-gradient-to-r from-red-700 to-red-600 text-white">
+                <th class="px-6 py-4 text-left font-semibold"> Tujuan </th>
+
+                <th class="px-6 py-4 text-left font-semibold"> Tarif </th>
+
+                <th class="px-6 py-4 text-left font-semibold"> Jarak </th>
+
+                <th class="px-6 py-4 text-left font-semibold"> Durasi </th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100">
+              {
+                passengerFares.map((fare) => (
+                  <tr
+                    x-show={`'${fare.destination.toLowerCase()}'.includes(search.toLowerCase())`}
+                    class="transition hover:bg-red-50"
+                  >
+                    <td class="px-6 py-4 font-medium text-gray-900">{fare.destination}</td>
+
+                    <td class="px-6 py-4 font-semibold text-red-600">
+                      Rp {fare.price.toLocaleString('id-ID')}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">{fare.distance}</td>
+
+                    <td class="px-6 py-4 text-gray-600">{fare.duration}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarif Paket -->
+    <div x-data="{
+    searchPackage: ''
+  }" class="reveal">
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <h2 class="text-4xl font-bold text-gray-900">Tarif Pengiriman Paket</h2>
+
+        <input
+          x-model="searchPackage"
+          type="text"
+          placeholder="Cari tujuan paket..."
+          class="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm transition outline-none focus:border-blue-500 md:max-w-sm"
+        />
+      </div>
+
+      <div class="mt-8 overflow-hidden rounded-3xl bg-white shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[600px]">
+            <thead>
+              <tr class="bg-gradient-to-r from-blue-700 to-blue-600 text-white">
+                <th class="px-6 py-4 text-left font-semibold"> Tujuan </th>
+
+                <th class="px-6 py-4 text-left font-semibold"> Tarif / Kg </th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100">
+              {
+                packageFares.map((fare) => (
+                  <tr
+                    x-show={`'${fare.destination.toLowerCase()}'.includes(searchPackage.toLowerCase())`}
+                    class="transition hover:bg-blue-50"
+                  >
+                    <td class="px-6 py-4 font-medium text-gray-900">{fare.destination}</td>
+
+                    <td class="px-6 py-4 font-semibold text-blue-700">
+                      Rp {fare.pricePerKg.toLocaleString('id-ID')}
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <Gallery class="reveal" />
+
+    <!-- FAQ -->
+    <div class="reveal">
+      <FAQ />
+    </div>
+  </section>
+  <FloatingWhatsApp />
+  <Footer />
+</MainLayout>
